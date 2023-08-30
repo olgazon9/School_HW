@@ -1,3 +1,5 @@
+import json
+
 class Test:
     def __init__(self, grade):
         self.grade = grade
@@ -17,7 +19,40 @@ def calculate_average(grades):
         return 0
     return sum(grades) / len(grades)
 
+def save_data(students):
+    with open('student_data.json', 'w') as file:
+        student_data = []
+        for student in students:
+            student_info = {
+                'name': student.name,
+                'subjects': [
+                    {'name': subject.name, 'grade': subject.grade}
+                    for subject in student.subjects
+                ]
+            }
+            student_data.append(student_info)
+        json.dump(student_data, file, indent=4)
+
+def load_data():
+    try:
+        with open('student_data.json', 'r') as file:
+            student_data = json.load(file)
+            
+            students = []
+            for data in student_data:
+                student = Student(data['name'])
+                for subject_info in data['subjects']:
+                    subject = Subject(subject_info['name'], subject_info['grade'])
+                    student.subjects.append(subject)
+                students.append(student)
+            return students
+    except FileNotFoundError:
+        return []
+
+
 def main():
+    students = load_data()
+
     subjects = {
         1: "history",
         2: "math",
@@ -25,7 +60,9 @@ def main():
         4: "python"
     }
 
-    students = []
+
+
+   
 
     while True:
         print("\nMenu:")
@@ -60,8 +97,10 @@ def main():
                 subject = Subject(subject_name, grade)
                 student.subjects.append(subject)
 
-            students.append(student)
-            print("Student added successfully!")
+                students.append(student)
+                print("Student added successfully!")
+
+
 
         elif choice == "2":
             if not students:
@@ -119,6 +158,7 @@ def main():
 
         elif choice == "7":
             print("Exiting program.")
+            save_data(students) 
             break
 
         else:
